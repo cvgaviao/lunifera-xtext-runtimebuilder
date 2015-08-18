@@ -12,15 +12,16 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.lunifera.releng.maven</groupId>
-		<artifactId>lunifera-releng-maven-parent-tycho</artifactId>
-		<version>0.12.5-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.lunifera.releng.maven</groupId>
+        <artifactId>lunifera-releng-maven-parent-tycho</artifactId>
+        <version>0.20.1-SNAPSHOT</version>
+        <relativePath>../lunifera-releng-maven/lunifera-releng-maven-parent-tycho/pom.xml</relativePath>
+    </parent>
 
 	<groupId>org.lunifera.xtext.builder</groupId>
-	<artifactId>org.lunifera.xtext.builder.aggregator</artifactId>
-	<version>0.9.0</version>
+	<artifactId>lunifera-xtext-runtimebuilder</artifactId>
+	<version>0.9.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<url>${distribution.site.url}</url>
@@ -32,8 +33,129 @@
 		</site>
 	</distributionManagement>
 
+    <properties>
+        <lunifera.deployment.p2.name>xtext.builder</lunifera.deployment.p2.name>
+        <lunifera.build.p2.project.name>org.lunifera.xtext.builder.p2</lunifera.build.p2.project.name>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <xtext.version>2.7.3</xtext.version>
+
+        <lunifera.jacoco.include>org.lunifera.xtext.builder.*</lunifera.jacoco.include>
+        <sonar.skippedModules>
+            org.lunifera.xtext.builder.participant.jvmtypes.tests,
+            org.lunifera.xtext.builder.participant.jvmtypes.extender.tests,
+            org.lunifera.xtext.builder.participant.xbase.extender.tests,
+            org.lunifera.xtext.builder.participant.xbase.tests,
+            org.eclipse.xtext.example.domainmodel
+        </sonar.skippedModules>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>add-source</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>src-gen</source>
+                                    <source>xtend-gen</source>
+                                </sources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.xtend</groupId>
+                    <artifactId>xtend-maven-plugin</artifactId>
+                    <version>${xtext.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>xtend-install-debug-info</goal>
+                                <goal>testCompile</goal>
+                                <goal>xtend-test-install-debug-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <outputDirectory>xtend-gen</outputDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>xtend-gen</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.xtend</groupId>
+                <artifactId>xtend-maven-plugin</artifactId>
+                <version>${xtext.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>xtend-gen</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.xtext</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.xbase</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.common.types</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>org.eclipse.xtext.ecore</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.xtend</groupId>
+                <artifactId>org.eclipse.xtend.lib</artifactId>
+                <version>${xtext.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
 	<modules>
-		<module>org.lunifera.xtext.builder.parent</module>
 
 		<!-- P2 bundles -->
 		<module>org.lunifera.xtext.builder.metadata.services</module>
@@ -68,7 +190,7 @@
 			<id>build.p2</id>
 			<activation>
 				<property>
-					<name>lunifera.build.p2</name>
+					<name>lunifera.stage.p2</name>
 				</property>
 			</activation>
 			<modules>
@@ -97,8 +219,7 @@
 						</executions>
 						<configuration>
 							<newVersion>${next-release}</newVersion>
-							<artifacts>org.lunifera.xtext.builder.aggregator,
-								org.lunifera.xtext.builder.parent,
+							<artifacts>lunifera-xtext-runtimebuilder,
 								org.lunifera.xtext.builder.p2
 							</artifacts>
 						</configuration>

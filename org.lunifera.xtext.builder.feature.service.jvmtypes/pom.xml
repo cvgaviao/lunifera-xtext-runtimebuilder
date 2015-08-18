@@ -13,13 +13,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.lunifera.xtext.builder</groupId>
-		<artifactId>org.lunifera.xtext.builder.parent</artifactId>
-		<version>0.9.0</version>
-		<relativePath>../org.lunifera.xtext.builder.parent/pom.xml</relativePath>
-	</parent>
-
+    <parent>
+        <groupId>org.lunifera.xtext.builder</groupId>
+        <artifactId>lunifera-xtext-runtimebuilder</artifactId>
+        <version>0.9.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    
 	<artifactId>org.lunifera.xtext.builder.feature.service.jvmtypes</artifactId>
 	<packaging>eclipse-feature</packaging>
 	<name>JvmTypes Builder Participant</name>
